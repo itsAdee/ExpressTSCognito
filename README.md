@@ -6,8 +6,7 @@
 
 # Getting started
  1. npm install
- 2. modify cognito variables in `src/services/cognito.service.ts`
- 3. modify cognito variables in `src/middleware/auth.middleware.ts`
+ 2. modify cognito variables in `.env`
 
 
 ## Available endpoints
@@ -26,3 +25,6 @@
   
 #### 5. auth/confirm-password
   Confirms that old password has changed
+
+#### 6. auth/reclain-token
+  Utilizes the refresh token to get back access token and id token

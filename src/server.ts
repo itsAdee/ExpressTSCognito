@@ -1,10 +1,12 @@
 import App from './app'
 
 import * as bodyParser from 'body-parser'
+import 'dotenv/config'
 
 import HomeController from './controllers/home.controller'
 import AuthController from './controllers/auth.controller'
 import ProtectedController from './controllers/protected.controller';
+
 
 const app = new App({
     port: 5000,

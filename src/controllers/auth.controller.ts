@@ -17,6 +17,7 @@ class AuthController {
         this.router.post('/verify', this.validateBody('verify'), this.verify)
         this.router.post('/forgot-password', this.validateBody('forgotPassword'), this.forgotPassword)
         this.router.post('/confirm-password', this.validateBody('confirmPassword'), this.confirmPassword)
+        this.router.post('/reclaim-tokens', this.validateBody('reclaimTokens'), this.reclaimTokensViaAccessToken)
     }
 
 
@@ -56,8 +57,12 @@ class AuthController {
       const { username, password } = req.body;
       let cognitoService = new Cognito();
       cognitoService.signInUser(username, password)
-        .then(success => {
-          success ? res.status(200).end() : res.status(400).end()
+        .then(data => {
+          if (data) {
+            res.status(200).json(data)
+          } else {
+            res.status(400).end()
+          }
         })
     }
 
@@ -106,6 +111,26 @@ class AuthController {
         });
     }
 
+    reclaimTokensViaAccessToken = (req: Request, res: Response) => {
+      const result = validationResult(req);
+      if (!result.isEmpty()) {
+        return res.status(422).json({ errors: result.array() });
+      }
+      const {refreshToken,username } = req.body;
+
+      let cognitoService = new Cognito();
+      cognitoService.reclaimTokensViaRefreshToken(refreshToken,username)
+        .then(data => {
+          if (data) {
+            res.status(200).json(data)
+          } else {
+            res.status(400).end()
+          }
+        }
+      )
+
+    }
+
     private validateBody(type: string) {
       switch (type) {
         case 'signUp':
@@ -137,6 +162,11 @@ class AuthController {
             body('password').exists().isLength({ min: 8}),
             body('username').notEmpty().isLength({ min: 5}),
             body('code').notEmpty().isString().isLength({min: 6, max: 6})
+          ]
+        case 'reclaimTokens':
+          return [
+            body('refreshToken').notEmpty().isString(),
+            body('username').notEmpty().isLength({min: 5}),
           ]
       }
     }
